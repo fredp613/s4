@@ -12,6 +12,10 @@ using Microsoft.Extensions.Options;
 using MasterProject.Models;
 using MasterProject.Models.AccountViewModels;
 using MasterProject.Services;
+using MasterProject.CRM;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using System.Diagnostics;
 
 namespace MasterProject.Controllers
 {
@@ -24,6 +28,7 @@ namespace MasterProject.Controllers
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
         private readonly string _externalCookieScheme;
+        private readonly IOrganizationService _crmService; 
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -39,6 +44,7 @@ namespace MasterProject.Controllers
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
+            _crmService = CrmService.GetServiceProvider();
         }
 
         //
@@ -112,7 +118,8 @@ namespace MasterProject.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var crmContactId = Guid.NewGuid();
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -124,6 +131,18 @@ namespace MasterProject.Controllers
                     //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
+
+                    var contactObj = new Entity("contact");
+
+                    contactObj["firstname"] = user.FirstName;
+                    contactObj["lastname"] = user.LastName;
+                    contactObj["fp_portalid"] = user.Id;
+                    //contactObj["email"] = user.Email;
+                    
+                    var newUser = _crmService.Create(contactObj);
+
+                    UpdateUserCrmContactId(user);
+
                     return RedirectToLocal(returnUrl);
                 }
                 AddErrors(result);
@@ -131,6 +150,19 @@ namespace MasterProject.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        private void UpdateUserCrmContactId(ApplicationUser user)
+        {
+            QueryExpression qe = new QueryExpression("contact");
+            qe.Criteria.AddCondition("fp_portalid", ConditionOperator.Equal, user.Id);
+            Guid crmContactId = _crmService.RetrieveMultiple(qe).Entities.First().Id;
+            user.CrmContactId = crmContactId;
+            Debug.WriteLine("---------asfsadsdafasdfadsf-----------");
+
+            _userManager.UpdateAsync(user);
+
+            
         }
 
         //
@@ -194,7 +226,7 @@ namespace MasterProject.Controllers
                 // If the user does not have an account, then ask the user to create an account.
                 ViewData["ReturnUrl"] = returnUrl;
                 ViewData["LoginProvider"] = info.LoginProvider;
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var email =  info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Email);
                 return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
             }
         }

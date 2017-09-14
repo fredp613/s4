@@ -10,6 +10,9 @@ using Microsoft.Extensions.Options;
 using MasterProject.Models;
 using MasterProject.Models.ManageViewModels;
 using MasterProject.Services;
+using MasterProject.CRM;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 
 namespace MasterProject.Controllers
 {
@@ -22,6 +25,7 @@ namespace MasterProject.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
+        private readonly IOrganizationService _crmService;
 
         public ManageController(
           UserManager<ApplicationUser> userManager,
@@ -37,6 +41,7 @@ namespace MasterProject.Controllers
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<ManageController>();
+            _crmService = CrmService.GetServiceProvider();
         }
 
         //
@@ -58,13 +63,21 @@ namespace MasterProject.Controllers
             {
                 return View("Error");
             }
+
+            QueryExpression qe = new QueryExpression("contact");
+            qe.Criteria.AddCondition("fp_portalid", ConditionOperator.Equal, user.Id);
+            Guid crmContactId = _crmService.RetrieveMultiple(qe).Entities.First().Id;
+            user.CrmContactId = crmContactId;
+
+
             var model = new IndexViewModel
             {
                 HasPassword = await _userManager.HasPasswordAsync(user),
                 PhoneNumber = await _userManager.GetPhoneNumberAsync(user),
                 TwoFactor = await _userManager.GetTwoFactorEnabledAsync(user),
                 Logins = await _userManager.GetLoginsAsync(user),
-                BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user)
+                BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
+                CrmContactId = crmContactId
             };
             return View(model);
         }

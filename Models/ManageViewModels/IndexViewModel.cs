@@ -17,5 +17,6 @@ namespace MasterProject.Models.ManageViewModels
         public bool TwoFactor { get; set; }
 
         public bool BrowserRemembered { get; set; }
+        public Guid CrmContactId { get; set; }
     }
 }
