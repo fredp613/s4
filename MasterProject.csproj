@@ -36,6 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="api\v1\" />
     <Folder Include="Data\" />
   </ItemGroup>
 
