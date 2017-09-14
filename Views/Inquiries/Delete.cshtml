@@ -1,0 +1,48 @@
+@model MasterProject.Models.Inquiry
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Inquiry</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <input type="hidden" asp-for="InquiryId" />
+        <dt>
+            @Html.DisplayNameFor(model => model.Content)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Content)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Response)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Response)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ResponseBy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ResponseBy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.User)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.Id)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </form>
+</div>

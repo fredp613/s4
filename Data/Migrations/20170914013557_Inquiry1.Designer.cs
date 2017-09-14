@@ -8,9 +8,10 @@ using MasterProject.Data;
 namespace MasterProject.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170914013557_Inquiry1")]
+    partial class Inquiry1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")
@@ -25,8 +26,6 @@ namespace MasterProject.Data.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
-
-                    b.Property<Guid>("CrmContactId");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);

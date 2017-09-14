@@ -8,9 +8,10 @@ using MasterProject.Data;
 namespace MasterProject.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170914012941_Inquiry")]
+    partial class Inquiry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")
@@ -25,8 +26,6 @@ namespace MasterProject.Data.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
-
-                    b.Property<Guid>("CrmContactId");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
@@ -70,26 +69,6 @@ namespace MasterProject.Data.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
-                });
-
-            modelBuilder.Entity("MasterProject.Models.Inquiry", b =>
-                {
-                    b.Property<Guid>("InquiryId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("ApplicationUserId");
-
-                    b.Property<string>("Content");
-
-                    b.Property<string>("Response");
-
-                    b.Property<string>("ResponseBy");
-
-                    b.HasKey("InquiryId");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("Inquiry");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole", b =>
@@ -197,13 +176,6 @@ namespace MasterProject.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("MasterProject.Models.Inquiry", b =>
-                {
-                    b.HasOne("MasterProject.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
