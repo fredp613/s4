@@ -131,17 +131,17 @@ namespace MasterProject.Controllers
                     //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
-
+                    IOrganizationService service = CrmService.GetServiceProvider();
                     var contactObj = new Entity("contact");
 
                     contactObj["firstname"] = user.FirstName;
                     contactObj["lastname"] = user.LastName;
                     contactObj["fp_portalid"] = user.Id;
-                    //contactObj["email"] = user.Email;
+                    contactObj["emailaddress1"] = user.Email;
                     
-                    var newUser = _crmService.Create(contactObj);
+                    var newUser = service.Create(contactObj);
 
-                    UpdateUserCrmContactId(user);
+                    if (newUser != null) UpdateUserCrmContactId(user);
 
                     return RedirectToLocal(returnUrl);
                 }
