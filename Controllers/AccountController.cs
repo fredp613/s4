@@ -136,12 +136,12 @@ namespace MasterProject.Controllers
 
                     contactObj["firstname"] = user.FirstName;
                     contactObj["lastname"] = user.LastName;
-                    contactObj["fp_portalid"] = user.Id;
+                   // contactObj["fp_portalid"] = user.Id;
                     contactObj["emailaddress1"] = user.Email;
                     
                     var newUser = service.Create(contactObj);
 
-                    if (newUser != null) UpdateUserCrmContactId(user);
+                   // if (newUser != null) UpdateUserCrmContactId(user);
 
                     return RedirectToLocal(returnUrl);
                 }
@@ -158,8 +158,7 @@ namespace MasterProject.Controllers
             qe.Criteria.AddCondition("fp_portalid", ConditionOperator.Equal, user.Id);
             Guid crmContactId = _crmService.RetrieveMultiple(qe).Entities.First().Id;
             user.CrmContactId = crmContactId;
-            Debug.WriteLine("---------asfsadsdafasdfadsf-----------");
-
+           
             _userManager.UpdateAsync(user);
 
             

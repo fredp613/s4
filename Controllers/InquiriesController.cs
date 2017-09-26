@@ -32,9 +32,11 @@ namespace MasterProject.Controllers
         // GET: Inquiries
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Inquiry.Include(i => i.User);
+            var applicationDbContext = _context.Inquiry.Include(i => i.User).Where(i=>i.ApplicationUserId == _userManager.GetUserId(User));
             return View(await applicationDbContext.ToListAsync());
         }
+		
+       
 
         // GET: Inquiries/Details/5
         public async Task<IActionResult> Details(Guid? id)

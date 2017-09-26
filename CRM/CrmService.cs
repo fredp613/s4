@@ -24,6 +24,8 @@ namespace MasterProject.CRM
         public CrmServiceClient conn;
         public static IConfigurationRoot Configuration { get; set; }
 
+       
+
         public CrmService()
         {
             // Connect to the CRM web service using a connection string.
@@ -34,12 +36,14 @@ namespace MasterProject.CRM
 
             Configuration = builder.Build();
 
-            var credentials = new System.Net.NetworkCredential(Configuration["crmcreds:username"], Configuration["crmcreds:password"], Configuration["crmcreds:domain"]);
-
-            conn = new CrmServiceClient(credentials,
-                "workspace-justice-local-dev.crm.egcs.fmt-tgf.com",
-                "443",
-                "workspace-justice-local-dev", useUniqueInstance: true, useSsl: true);
+            //var credentials = new System.Net.NetworkCredential(Configuration["crmcreds:username"], Configuration["crmcreds:password"], Configuration["crmcreds:domain"]);
+            //conn = new CrmServiceClient(credentials,
+            //   "workspace-justice-local-dev.crm.egcs.fmt-tgf.com",
+            //   "443",
+            //   "workspace-justice-local-dev", useUniqueInstance: true, useSsl: true);
+           //CrmServiceClient conn = new CrmServiceClient("acad_instruct@eperformanceinc.com", CrmServiceClient.MakeSecureString("Mayu6150"), String.Empty, "eperf-acad.crm.dynamics.com", useSsl:true, useUniqueInstance:false, isOffice365:true);
+            CrmServiceClient conn = new CrmServiceClient("Url = https://eperf-acad.crm.dynamics.com/; Username=acad_instruct@eperformanceinc.com; Password=Mayu6150; authtype=Office365");
+            Console.WriteLine("Connection is ready????? " + conn.IsReady.ToString());
             _orgService = (IOrganizationService)conn.OrganizationWebProxyClient != null ? (IOrganizationService)conn.OrganizationWebProxyClient : (IOrganizationService)conn.OrganizationServiceProxy;
 
 
@@ -61,6 +65,20 @@ namespace MasterProject.CRM
             return service;
         }
 
+        public static string GetTestUserInfo()
+        {
+            var crmService = new CrmService();
+            IOrganizationService service = crmService._orgService;
+            //// Obtain information about the logged on user from the web service.
+            Guid userid = ((WhoAmIResponse)service.Execute(new WhoAmIRequest())).UserId;
+            // Entity account = _orgService.Retrieve("Account", Guid.NewGuid(), new ColumnSet(new String[] { "accountid", "accountname" }));
+            Entity systemUser = service.Retrieve("systemuser", userid,
+                new ColumnSet(new string[] { "firstname", "lastname" }));
+            var user = String.Format("Logged on user is {0} {1}.", systemUser.GetAttributeValue<string>("firstname"), systemUser.GetAttributeValue<string>("lastname"));
+            //return conn.IsReady.ToString();
+            return user;
+
+        }
 
         public string GetTestUser()
         {

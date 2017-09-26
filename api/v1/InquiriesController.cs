@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MasterProject.Data;
 using MasterProject.Models;
+using Microsoft.Xrm.Sdk;
+using MasterProject.CRM;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 
 namespace MasterProject.api.v1
 {
@@ -14,11 +18,15 @@ namespace MasterProject.api.v1
     [Route("api/v1/Inquiries")]
     public class InquiriesController : Controller
     {
+        private UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IOrganizationService _crmService;
 
-        public InquiriesController(ApplicationDbContext context)
+        public InquiriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
+            _userManager = userManager;
             _context = context;
+            _crmService = CrmService.GetServiceProvider();
         }
 
         // GET: api/Inquiries
@@ -26,6 +34,13 @@ namespace MasterProject.api.v1
         public IEnumerable<Inquiry> GetInquiry()
         {
             return _context.Inquiry;
+        }
+        [HttpGet("conn")]
+        public string GetConn()
+        {
+           // Debug.WriteLine("asdfsdfsfsdffads");
+       
+            return CrmService.GetTestUserInfo();
         }
 
         // GET: api/Inquiries/5
@@ -61,7 +76,7 @@ namespace MasterProject.api.v1
                 return BadRequest();
             }
 
-            _context.Entry(inquiry).State = EntityState.Modified;
+            _context.Entry(inquiry).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 
             try
             {
@@ -82,19 +97,35 @@ namespace MasterProject.api.v1
             return NoContent();
         }
 
-        // POST: api/Inquiries
         [HttpPost]
-        public async Task<IActionResult> PostInquiry([FromBody] Inquiry inquiry)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("InquiryId,Content,Response,ApplicationUserId,ResponseBy")] Inquiry inquiry)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                inquiry.InquiryId = Guid.NewGuid();
+                inquiry.ApplicationUserId = _userManager.GetUserId(User);
+                _context.Add(inquiry);
+                await _context.SaveChangesAsync();
+
+                var newCrmInquiry = new Entity("fp_inquiry");
+
+                QueryExpression qe = new QueryExpression("contact");
+                qe.Criteria.AddCondition("fp_portalid", ConditionOperator.Equal, inquiry.ApplicationUserId);
+                Guid crmContactId = _crmService.RetrieveMultiple(qe).Entities.First().Id;
+
+                newCrmInquiry.Id = inquiry.InquiryId;
+                newCrmInquiry["fp_name"] = _userManager.GetUserName(User);
+                newCrmInquiry["fp_question"] = inquiry.Content;
+                newCrmInquiry["fp_contact"] = new EntityReference("contact", crmContactId);
+                _crmService.Create(newCrmInquiry);
+
+                return RedirectToAction("Index");
             }
 
-            _context.Inquiry.Add(inquiry);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInquiry", new { id = inquiry.InquiryId }, inquiry);
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", inquiry.ApplicationUserId);
+            return View(inquiry);
         }
 
         // DELETE: api/Inquiries/5
