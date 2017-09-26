@@ -152,17 +152,17 @@ namespace MasterProject.Controllers
             return View(model);
         }
 
-        private void UpdateUserCrmContactId(ApplicationUser user)
-        {
-            QueryExpression qe = new QueryExpression("contact");
-            qe.Criteria.AddCondition("fp_portalid", ConditionOperator.Equal, user.Id);
-            Guid crmContactId = _crmService.RetrieveMultiple(qe).Entities.First().Id;
-            user.CrmContactId = crmContactId;
+        //private void UpdateUserCrmContactId(ApplicationUser user)
+        //{
+        //    QueryExpression qe = new QueryExpression("contact");
+        //    qe.Criteria.AddCondition("fp_portalid", ConditionOperator.Equal, user.Id);
+        //    Guid crmContactId = _crmService.RetrieveMultiple(qe).Entities.First().Id;
+        //    user.CrmContactId = crmContactId;
            
-            _userManager.UpdateAsync(user);
+        //    _userManager.UpdateAsync(user);
 
             
-        }
+        //}
 
         //
         // POST: /Account/Logout

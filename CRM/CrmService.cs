@@ -29,12 +29,12 @@ namespace MasterProject.CRM
         public CrmService()
         {
             // Connect to the CRM web service using a connection string.
-            //CrmServiceClient conn = new Xrm.Tooling.Connector.CrmServiceClient(connectionString);
-            var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("secrets.json");
+            
+            //var builder = new ConfigurationBuilder()
+            //.SetBasePath(Directory.GetCurrentDirectory())
+            //.AddJsonFile("secrets.json");
 
-            Configuration = builder.Build();
+            //Configuration = builder.Build();
 
             //var credentials = new System.Net.NetworkCredential(Configuration["crmcreds:username"], Configuration["crmcreds:password"], Configuration["crmcreds:domain"]);
             //conn = new CrmServiceClient(credentials,

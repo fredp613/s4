@@ -11,6 +11,8 @@ using Microsoft.Xrm.Sdk;
 using MasterProject.CRM;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MasterProject.api.v1
 {
